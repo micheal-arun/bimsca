@@ -1,3 +1,5 @@
 # Welcome to Supply Chain Analytics
 # This repository created to develop interactive tutorial for the class
  All the Best
+ 
+ Connected with R studio
