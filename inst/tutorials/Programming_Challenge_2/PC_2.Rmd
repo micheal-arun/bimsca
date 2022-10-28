@@ -1,0 +1,232 @@
+---
+title: "Programming challenge 2"
+output: 
+  learnr::tutorial:
+     progressive: true
+     allow_skip: true
+highlight: textmate
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+
+library(learnr)
+library(tidyverse)
+library(timetk)
+library(lubridate)
+library(ggTimeSeries)
+library(modeltime)
+library(tidymodels)
+library(learnrhash)
+
+m5_calendar <- read_csv("calendar.csv")
+
+m5_price <- read_csv("m5_pricetrim.csv")
+
+m5_sales <- read_csv("m5_salestrim.csv")
+
+key_list <- m5_sales%>%
+  distinct(id)
+
+missing_example <- read_csv("missing example.csv")%>%
+  mutate(date = mdy(date))
+
+adding_missing_dates <- missing_example%>%
+     pad_by_time(.date_var = date)
+
+m5_data <- m5_sales%>%
+  pivot_longer(cols = -c(1:6), names_to = "d", values_to = "sales")%>%
+  left_join(m5_calendar, by = "d")%>%
+  select(1:10,12)
+
+split <- m5_data%>%
+  filter(id %in% c("FOODS_1_004_CA_3_evaluation","HOBBIES_1_007_CA_1_evaluation"))%>%
+  filter_by_time(.date_var = date, .start_date = "2014")%>%
+  select(id,date,sales,wday)%>%
+  timetk::time_series_split(date_var = date, assess = "3 months", cumulative = TRUE)
+  
+
+m5_data_v1_calendar <- m5_sales%>%
+  pivot_longer(cols = -c(1:6), names_to = "d", values_to = "sales")%>%
+  left_join(m5_calendar, by = "d")
+
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Exercise
+
+### Notes 
+
+1. You have to complete the coding for the 10 task given. 
+
+2. you have to replace `---` with appropriate code.
+
+3. Once you complete, click the `Run code` button.
+
+4. Once you answered all the questions, go to submit section and do the following
+
+|  a. Go to Submit section
+|  b. click `Generate` button
+|  c. once the hash code generated , select using `select hash` button
+|  d. then copy the hash code by clicking `copy hash to clipboard`button
+|  e. open the google form link and fill the details and submit
+
+
+### Exercise 1
+
+`m5_data` available for you. complete the code with appropriate function to select first 6 rows of the data
+
+```{r e1, exercise = TRUE}
+
+---(m5_data)
+
+```
+
+### Exercise 2
+
+complete the code to identify the no of unique departments in the `m5_data`
+
+```{r e2, exercise = TRUE}
+
+m5_data%>%
+  ---(---)
+
+```
+
+### Exercise 3
+
+From the `m5_data` 1) filter `FOODS_1_011_CA_3_evaluation` using the `id` column 2) aggregate the daily sales to `monthly` sales and 3) plot the time series by specifying appropriate arguments
+
+```{r e3, exercise = TRUE}
+
+m5_data%>%
+  ---(---)%>%
+  ---(---)%>%
+  ---(.date_var = ---, .value = --- )
+
+```
+
+### Exercise 4
+
+From the `m5_data` 1) filter `HOBBIES_1_001_CA_1_evaluation` using the `id`column 2) filter the time series starting from `2015 January` till `2016 Mar 31` and 3) plot the time series
+
+```{r e4, exercise = TRUE}
+
+m5_data%>%
+  ---(---)%>%
+  ---(---)%>%
+  ---(.date_var = ---, .value = --- )
+
+```
+
+### Exercise 5
+
+An example with missing values is available for you as `missing_example`. add the missing dates and store it in the `adding_missing_dates` variable. 
+
+```{r e5, exercise = TRUE}
+
+adding_missing_dates <- ---%>%
+  ---(---)
+
+```
+
+
+### Exercise 6 
+
+with the `adding_missing_dates` in the previous exercise , create a dataframe to fill the missing values using `na_interpolation` method with the option as `spline` and store them in the variable `replaced_value`
+
+```{r e6, exercise = TRUE}
+
+replaced_value <- ---(repalced_value = ---)
+  
+
+```
+
+
+### Exercise 7
+
+m5_data with calendar info added available as `m5_data_withcalendar`. generate the calendar events for the snap days in california. 
+
+
+```{r e7, exercise = TRUE}
+
+m5_data_withcalendar%>%
+  filter(id == "FOODS_1_001_CA_1_evaluation")%>%
+  filter_by_time(.date_var = date, .start_date = "2011-01","2015")%>%
+  ---(--- = ---,  --- = ---)+
+  xlab(NULL)+
+  ylab(NULL)+
+  theme(strip.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = 'bottom')+
+  facet_wrap(~Year, ncol = 1)
+
+``` 
+
+### Exercise 8
+
+with the `m5_data`, add the variables for lag 3 and 12 of sales.
+
+
+```{r e8, exercise = TRUE}
+
+m5_data%>%
+  filter(id == "FOODS_1_004_CA_3_evaluation")%>%
+  filter_by_time(.date_var = date, .start_date = "2013")%>%
+  ---(--- = ---, --- = --- )
+
+```
+
+### Exercise 9
+
+with the `m5_data` add the time related variables
+
+```{r e9, exercise = TRUE}
+
+m5_data%>%
+  filter(id == "HOBBIES_1_005_CA_1_evaluation")%>%
+  ---(--- = ---)
+
+```
+
+
+### Exercise 10
+
+
+Split the data in to training and test by defining 2 months for test and the rest for train
+
+```{r e10, exercise = TRUE}
+
+m5_data%>%
+  filter(id %in% c("FOODS_1_004_CA_3_evaluation","HOBBIES_1_007_CA_1_evaluation"))%>%
+  filter_by_time(.date_var = date, .start_date = "2014")%>%
+  ---(date_var = date, --- = --- , --- = ---)
+
+```
+
+### Exercise 11
+
+apply `arima_reg()` model to train the data. The `split`data which contains both train and test values available for you. 
+
+```{r e11, exercise = TRUE}
+
+model_fit <- --- %>%
+  ---(engine = ---)%>%
+  ---(--- , ---)
+
+```
+
+## Submit
+
+
+
+
+```{r context="server"}
+learnrhash::encoder_logic()
+```
+
+```{r encode, echo=FALSE}
+learnrhash::encoder_ui(ui_before = default_ui(url = "https://forms.gle/Xmqe5reyAUdGJnH18")
+)
+```
