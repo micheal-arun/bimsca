@@ -2,5 +2,4 @@
 # This repository created to develop interactive tutorial for the class
  All the Best
  
- Connected with R studio
-One more attempt
+
